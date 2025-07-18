@@ -159,25 +159,15 @@ components:
     SelectionQuery:
       type: object
       description: |
-        The query parameters for selecting data. The actual parameter names are the queryable dimensions of the dataset.
-      properties:
-        # These are examples of what the query parameters could be.
-        # The actual parameters are dynamic and depend on the dataset.
-        time:
-          type: string
-          example: "2023-10-27T00:00:00Z:2023-10-27T01:00:00Z"
-        band:
-          type: string
-          example: "C07,C08"
-        y:
-          type: string
-          example: "1000:3000"
-        x:
-          type: string
-          example: "2000:4000"
-        price:
-          type: string
-          example: "[gte]=20.00"
-        category:
-          type: string
-          example: "[nin]=internal,test"
+        The query parameters for selecting data. The actual parameter names are the queryable dimensions of the dataset, as advertised by the dataset's metadata endpoint. The values for these parameters must adhere to the CCRP Query Syntax Specification.
+        For detailed syntax, refer to the [CCRP Query Syntax Specification](/docs/ccrp-query-syntax).
+      additionalProperties:
+        type: string
+      example:
+        time: "2023-10-27T00:00:00Z:2023-10-27T01:00:00Z"
+        band: "C07,C08"
+        y: "1000:3000"
+        price[gte]: "20.00"
+        category[nin]: "internal,test"
+        status: "completed"
+        sensor_id[lt]: "12345"
