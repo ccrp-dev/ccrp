@@ -1,0 +1,183 @@
+openapi: 3.0.3
+info:
+  title: CCRP API
+  version: 0.1.0
+  description: |
+    CCRP (Coalesced Chunk Read Protocol) is a specification for a high-performance, read-only API designed to solve the N+1 request problem for chunked datasets in cloud object storage. It replaces thousands of high-latency client-side requests with a single planning request and a few parallel, high-throughput downloads.
+  contact:
+    name: CCRP Spec
+    url: https://github.com/jkeifer/ccrp
+    email: jkeifer0@gmail.com
+tags:
+  - name: Metadata
+    description: Operations related to dataset metadata.
+  - name: Data Retrieval
+    description: Operations related to fetching data.
+servers:
+  - url: /
+paths:
+  /{dataset_name}:
+    get:
+      operationId: getDatasetMetadata
+      tags:
+        - Metadata
+      summary: Get Dataset Metadata
+      description: |
+        Retrieves the metadata for a dataset, including information about the CCRP service and the native metadata for the underlying format (e.g., Zarr, Iceberg).
+      parameters:
+        - name: dataset_name
+          in: path
+          required: true
+          schema:
+            type: string
+          example: my-goes-dataset
+      responses:
+        '200':
+          description: The dataset metadata.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ccrp_envelope:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      ccrp_version:
+                        type: string
+                      format:
+                        type: string
+                        enum: [zarr, iceberg]
+                      versioning_info:
+                        type: object
+                        properties:
+                          scheme:
+                            type: string
+                            enum: [icechunk, iceberg_snapshot]
+                          latest_version_id:
+                            type: string
+                      queryable_dimensions:
+                        type: array
+                        items:
+                          type: string
+                  native_metadata:
+                    type: object
+                    description: The full, unmodified native metadata for the underlying format.
+    head:
+      operationId: planDataRequest
+      tags:
+        - Data Retrieval
+      summary: Plan a Data Request
+      description: |
+        Initiates a "dry run" to plan a data request. The server resolves the query, determines the total size of the response, and returns a `Content-Length` header and a `ETag` that uniquely identifies the query plan. This allows the client to plan parallel downloads.
+      parameters:
+        - name: dataset_name
+          in: path
+          required: true
+          schema:
+            type: string
+          example: my-goes-dataset
+        - name: transaction_id
+          in: query
+          schema:
+            type: string
+          description: "The version pin (e.g., icechunk transaction ID or Iceberg snapshot ID) to ensure reproducible reads. If omitted, the server uses the latest version."
+        - name: selection
+          in: query
+          schema:
+            $ref: '#/components/schemas/SelectionQuery'
+          style: form
+          explode: true
+          description: |
+            The query parameters for selecting data. This is a placeholder for the actual query parameters, which are documented in the component schema `SelectionQuery`.
+      responses:
+        '200':
+          description: The query plan is ready.
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+              description: The total size of the data to be downloaded in bytes.
+            ETag:
+              schema:
+                type: string
+              description: A unique identifier for the query plan.
+            CCRP-Resolved-Version:
+              schema:
+                type: string
+              description: The version ID that was used to resolve the query, returned when the client does not specify a `transaction_id`.
+    put:
+      operationId: fetchData
+      tags:
+        - Data Retrieval
+      summary: Fetch Data
+      description: |
+        Fetches the data planned by a `HEAD` request. The client can use the `Range` header to download a portion of the data. The `If-Match` header must contain the `ETag` from the `HEAD` request to ensure that the query plan has not changed.
+      parameters:
+        - name: dataset_name
+          in: path
+          required: true
+          schema:
+            type: string
+          example: my-goes-dataset
+        - name: Range
+          in: header
+          schema:
+            type: string
+          description: The byte range to fetch.
+        - name: If-Match
+          in: header
+          required: true
+          schema:
+            type: string
+          description: The `ETag` from the corresponding `HEAD` request.
+      responses:
+        '200':
+          description: The full data payload.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '206':
+          description: A partial data payload.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Content-Range:
+              schema:
+                type: string
+            Content-Length:
+              schema:
+                type: integer
+components:
+  schemas:
+    SelectionQuery:
+      type: object
+      description: |
+        The query parameters for selecting data. The actual parameter names are the queryable dimensions of the dataset.
+      properties:
+        # These are examples of what the query parameters could be.
+        # The actual parameters are dynamic and depend on the dataset.
+        time:
+          type: string
+          example: "2023-10-27T00:00:00Z:2023-10-27T01:00:00Z"
+        band:
+          type: string
+          example: "C07,C08"
+        y:
+          type: string
+          example: "1000:3000"
+        x:
+          type: string
+          example: "2000:4000"
+        price:
+          type: string
+          example: "[gte]=20.00"
+        category:
+          type: string
+          example: "[nin]=internal,test"
