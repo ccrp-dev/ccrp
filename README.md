@@ -3,10 +3,11 @@
 This repo contains the documentation for the specification of the Coalesced
 Chunk Retrival Protocol (CCRP).
 
-> [!WARNING] CCRP is currently under initial active development, and is being
-> worked with significant contributions from LLM-based coding agents. It has
-> not undergone a full review at this time, so be aware the documentation and
-> specification may contain sigificant errors or gaps.
+> [!WARNING]
+> CCRP is currently under initial active development, and is being worked with
+> significant contributions from LLM-based coding agents. It has not undergone
+> a full review at this time, so be aware the documentation and specification
+> may contain sigificant errors or gaps.
 
 ## What is CCRP?
 
