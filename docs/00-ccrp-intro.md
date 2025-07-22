@@ -1,4 +1,4 @@
-# Intro to CCRP: The Coalesced Chunk Read Protocol
+# The Coalesced Chunk Retrieval Protocol
 
 ## The Problem
 
@@ -27,7 +27,7 @@ performance.
 
 ## How CCRP Helps
 
-CCRP provides a simple service that accepts chunk queries and returns the
+The Coalesced Chunk Retrieval Protocol (CCRP) provides a simple service that accepts chunk queries and returns the
 concatenated bytes. Instead of making N requests for N chunks, you make one
 request:
 

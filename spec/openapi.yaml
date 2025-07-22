@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Coalesced Chunk Read Protocol (CCRP)
+  title: Coalesced Chunk Retrieval Protocol (CCRP)
   version: 0.1.0
   description: |
     CCRP is a high-performance, read-only API designed to solve the N+1 request problem
