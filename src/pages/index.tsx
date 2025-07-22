@@ -36,7 +36,7 @@ export default function Home(): ReactNode {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title={`CCRP: ${siteConfig.title}`}
+      title={`${siteConfig.title}: ${siteConfig.tagline}`}
       description="Coalesced Chunk Retrieval Protocol (CCRP) Specification"
     >
       <HomepageHeader />
