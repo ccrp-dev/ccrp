@@ -70,7 +70,7 @@ TileDB come to mind, but CCRP is different. Consider the following:
   inadequate (for this use-case) object model. Look at [the S3 Vectors
   product](https://aws.amazon.com/blogs/aws/introducing-amazon-s3-vectors-first-cloud-storage-with-native-vector-support-at-scale/)
   for an example of AWS already doing something like this in a different
-      domain.
+  domain.
 * **The goal is an open standard, not a product.**  This is a missing piece of
   global data infrastructure. The goal is to create a compelling specification
   that all cloud providers can and will implement, making data access better
