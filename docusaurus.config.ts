@@ -4,7 +4,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'CCRP',
-  tagline: 'Coalesced Chunk Read Protocol',
+  tagline: 'The Coalesced Chunk Retrieval Protocol',
   favicon: 'img/favicon.png',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -22,7 +22,7 @@ const config: Config = {
   projectName: 'ccrp',
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenMarkdownLinks: 'throw',
 
   i18n: {
     defaultLocale: 'en',
@@ -52,13 +52,18 @@ const config: Config = {
           },
         ],
         theme: {
-          primaryColor: '#1890ff',
+          primaryColor: '#FFFFDD',
         },
       },
     ],
   ],
 
   themeConfig: {
+    colorMode: {
+      defaultMode: 'light',
+      disableSwitch: false,
+      respectPrefersColorScheme: true,
+    },
     image: 'img/ccrp-social-card.jpg',
     navbar: {
       title: 'CCRP: Coalesced Chunk Retrieval Protocol',

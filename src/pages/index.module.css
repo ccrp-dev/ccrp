@@ -21,3 +21,14 @@
   align-items: center;
   justify-content: center;
 }
+
+.logoContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  height: 240px;
+  width: auto;
+}
