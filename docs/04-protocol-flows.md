@@ -446,15 +446,34 @@ Client                                   CCRP Service
   |                                           |
   |  GET /                                    |
   |------------------------------------------>|
+  |                                           |
+  |  200 OK                                   |
+  |  (landing page with links)                |
+  |<------------------------------------------|
+  |                                           |
   |  (follows datasets link)                  |
   |  GET /dataset                             |
   |------------------------------------------>|
+  |                                           |
+  |  200 OK                                   |
+  |  (dataset list)                           |
+  |<------------------------------------------|
+  |                                           |
   |  (follows specific dataset link)          |
   |  GET /dataset/{id}                        |
   |------------------------------------------>|
+  |                                           |
+  |  200 OK                                   |
+  |  (dataset metadata)                       |
+  |<------------------------------------------|
+  |                                           |
   |  (follows data link)                      |
   |  GET /dataset/{id}/data?{query}           |
   |------------------------------------------>|
+  |                                           |
+  |  200 OK                                   |
+  |  [chunk bytes]                            |
+  |<------------------------------------------|
 ```
 
 ### Example: Complete Discovery
