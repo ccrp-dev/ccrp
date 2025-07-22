@@ -37,7 +37,7 @@ export default function Home(): ReactNode {
   return (
     <Layout
       title={`CCRP: ${siteConfig.title}`}
-      description="Coalesced Chunk Read Protocol documentation site"
+      description="Coalesced Chunk Retrieval Protocol (CCRP) Specification"
     >
       <HomepageHeader />
       <main></main>
