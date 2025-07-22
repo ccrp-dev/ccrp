@@ -93,7 +93,7 @@ abstraction is key to its flexibility.
 When you query:
 
 ```
-GET /dataset/ocean-temp/data?time=2024-01:2024-02&depth=0:100
+GET /dataset/ocean-temp/data?time[gte]=2024-01&time[lt]=2024-02&depthi[gte]=0&depth[lt]=100
 ```
 
 You're using:
@@ -106,23 +106,14 @@ CCRP handles the translation.
 ### Chunk Boundary Expansion
 
 CCRP returns complete chunks that overlap your query region. If chunks contain
-depths 0-50m and 50-100m, and you request depth=25:75, you'll receive both
-complete chunks (0-100m of data).
+depths 0-50m and 50-100m, and you request `depth[gte]=25&depth[lt]=75`, you'll
+receive both complete chunks (0-100m of data).
 
 This behavior is predictable and simple:
 
 - The server expands to chunk boundaries
 - The client extracts the exact subset needed
 - No partial chunk complexity
-
-### Half-Open Intervals
-
-Following Python/NumPy conventions, ranges use half-open intervals `[start, end)`:
-
-- `time=2024-01:2024-02` includes January but not February
-- `lat=30:40` includes 30 but not 40
-
-This provides consistency with scientific Python ecosystems.
 
 ## Version Pinning and Reproducibility
 
@@ -194,7 +185,7 @@ two-phase protocol.
 For basic use cases, a single GET request suffices:
 
 ```
-GET /dataset/temperature/data?lat=30:40&lon=-120:-110
+GET /dataset/temperature/data?lat[gte]=30&lat[lt]=40&lon[gte]=-120&lon[lt]=-110
 → 200 OK [data bytes]
 ```
 
@@ -205,7 +196,7 @@ For large queries or parallel downloads:
 1. **HEAD request** returns the total size and an ETag:
 
 ```
-HEAD /dataset/temperature/data?lat=30:40&lon=-120:-110
+HEAD /dataset/temperature/data?lat[gte]=30&lat[lt]=40&lon[gte]=-120&lon[lt]=-110
 → Content-Length: 5368709120
 → ETag: "abc123"
 ```
@@ -213,7 +204,7 @@ HEAD /dataset/temperature/data?lat=30:40&lon=-120:-110
 1. **Multiple GET requests** with byte ranges:
 
 ```
-GET /dataset/temperature/data?lat=30:40&lon=-120:-110
+GET /dataset/temperature/data?lat[gte]=30&lat[lt]=40&lon[gte]=-120&lon[lt]=-110
 Range: bytes=0-1073741823
 If-Match: "abc123"
 ```

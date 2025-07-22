@@ -1,7 +1,3 @@
----
-sidebar_position: 2
----
-
 # Intro to CCRP: The Coalesced Chunk Read Protocol
 
 ## The Problem
@@ -36,7 +32,7 @@ concatenated bytes. Instead of making N requests for N chunks, you make one
 request:
 
 ```
-GET /dataset/my-data/data?time=2024-01:2024-02&variable=temperature
+GET /dataset/my-data/data?time[gte]=2024-01&time[lt]=2024-02&variable=temperature
 ```
 
 CCRP:
@@ -85,7 +81,7 @@ their data rather than for network limitations. This means:
 Additionally, CCRP enables new patterns:
 
 - **Direct linking**: A STAC catalog can link to
-  `https://ccrp.example.com/dataset/temperature/data?time=2024-01-15&lat=30:40&lon=-120:-110`
+  `https://ccrp.example.com/dataset/temperature/data?time[gte]=2024-01-15&lat[gte]=30&lat[lt]=40&lon[gte]=-120&lon[lt]=-110`
 - **Reproducible references**: Version-pinned URLs that always return the same
   data
 - **Simplified client code**: No need to understand chunking schemes

@@ -237,7 +237,7 @@ Plans a query and returns metadata needed for subsequent retrieval.
 **Query Parameters:**
 
 - `version` (string, optional): Specific version to query
-- Additional dimension-based parameters using CCRP query syntax
+- Additional dimension-based parameters using [CCRP query syntax](./03-query-syntax.md)
 
 **Version Parameter Behavior:**
 
@@ -256,7 +256,7 @@ Plans a query and returns metadata needed for subsequent retrieval.
 **Example:**
 
 ```
-HEAD /dataset/temperature/data?time=2024-01:2024-02&lat=30:40
+HEAD /dataset/temperature/data?time[gte]=2024-01&time[lt]=2024-02&lat[gte]=30&lat[lt]=40
 ```
 
 **Error Responses:**
@@ -377,13 +377,6 @@ Required functionality:
 - Chunk identification via Content-ID
 - Content negotiation via Accept header
 - 406 Not Acceptable for unsupported formats
-
-#### Advanced Query Operators
-
-**URI**: `https://ccrp.io/spec/v1/conformance/advanced-operators`
-
-- Greater than/less than operators
-- Set exclusion (NOT IN)
 
 ### Advanced Conformance Classes
 

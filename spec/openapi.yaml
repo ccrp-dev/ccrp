@@ -477,16 +477,15 @@ components:
       description: Dimension-based query parameters following CCRP syntax
       additionalProperties:
         type: string
-        pattern: '^([^:\[,]+|[^:,]+:[^:,]+|[^,]+(,[^,]+)*|[^,]+\[(gte|gt|lte|lt|nin)\])$'
+        pattern: '^([^,\[]+|[^,]+(,[^,]+)*|[^,]+\[(gte|gt|lte|lt|nin)\])$'
         description: |
           Query values following CCRP syntax:
           - Single value: "value"
-          - Range: "start:end" (half-open interval)
           - Set: "v1,v2,v3"
           - Operators: "value" with parameter name like "dim[gte]"
       example:
-        time: "2024-01-01:2024-02-01"
-        lat: "30:40"
+        time: "time[gte]=2024-01-01&time[lt]=2024-02-01"
+        lat: "lat[gte]=30&lat[lt]=40"
         band: "C07,C08"
         "temperature[gte]": "20.0"
         "status[nin]": "error,cancelled"
