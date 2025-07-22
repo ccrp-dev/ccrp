@@ -1,173 +1,492 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
-  title: CCRP API
+  title: Coalesced Chunk Read Protocol (CCRP)
   version: 0.1.0
   description: |
-    CCRP (Coalesced Chunk Read Protocol) is a specification for a high-performance, read-only API designed to solve the N+1 request problem for chunked datasets in cloud object storage. It replaces thousands of high-latency client-side requests with a single planning request and a few parallel, high-throughput downloads.
-  contact:
-    name: CCRP Spec
-    url: https://github.com/jkeifer/ccrp
-    email: jkeifer0@gmail.com
-tags:
-  - name: Metadata
-    description: Operations related to dataset metadata.
-  - name: Data Retrieval
-    description: Operations related to fetching data.
+    CCRP is a high-performance, read-only API designed to solve the N+1 request problem
+    for chunked datasets in cloud object storage. It acts as a "byte broker" that coalesces
+    multiple chunk requests into efficient, parallelized operations.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
 servers:
-  - url: /
+  - url: https://api.example.com
+    description: Example CCRP server
+
 paths:
-  /{dataset_name}:
+  /:
     get:
-      operationId: getDatasetMetadata
-      tags:
-        - Metadata
-      summary: Get Dataset Metadata
-      description: |
-        Retrieves the metadata for a dataset, including information about the CCRP service and the native metadata for the underlying format (e.g., Zarr, Iceberg).
-      parameters:
-        - name: dataset_name
-          in: path
-          required: true
-          schema:
-            type: string
-          example: my-goes-dataset
+      summary: API landing page and conformance information
+      description: Returns information about the CCRP service, its capabilities, and conformance classes
+      operationId: getLandingPage
       responses:
         '200':
-          description: The dataset metadata.
+          description: Service information and capabilities
           content:
             application/json:
               schema:
                 type: object
+                required:
+                  - conformsTo
+                  - links
                 properties:
-                  ccrp_envelope:
-                    type: object
-                    properties:
-                      name:
-                        type: string
-                      ccrp_version:
-                        type: string
-                      format:
-                        type: string
-                        enum: [zarr, iceberg]
-                      versioning_info:
-                        type: object
-                        properties:
-                          scheme:
-                            type: string
-                            enum: [icechunk, iceberg_snapshot]
-                          latest_version_id:
-                            type: string
-                      queryable_dimensions:
-                        type: array
-                        items:
-                          type: string
-                  native_metadata:
-                    type: object
-                    description: The full, unmodified native metadata for the underlying format.
-    head:
-      operationId: planDataRequest
-      tags:
-        - Data Retrieval
-      summary: Plan a Data Request
-      description: |
-        Initiates a "dry run" to plan a data request. The server resolves the query, determines the total size of the response, and returns a `Content-Length` header and a `ETag` that uniquely identifies the query plan. This allows the client to plan parallel downloads.
+                  title:
+                    type: string
+                    example: "Example CCRP Service"
+                  description:
+                    type: string
+                    example: "CCRP service providing efficient access to chunked climate data"
+                  attribution:
+                    type: string
+                    example: "Data provided by NOAA"
+                  conformsTo:
+                    type: array
+                    items:
+                      type: string
+                      format: uri
+                    example:
+                      - "https://ccrp.io/spec/v1/conformance/core"
+                      - "https://ccrp.io/spec/v1/conformance/range-requests"
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+                    example:
+                      - href: "/"
+                        rel: "self"
+                        type: "application/json"
+                      - href: "/dataset"
+                        rel: "https://ccrp.io/spec/v1/rel/datasets"
+                        type: "application/json"
+                        title: "Available datasets"
+                      - href: "/conformance"
+                        rel: "conformance"
+                        type: "application/json"
+                        title: "Conformance declaration"
+                      - href: "/api"
+                        rel: "service-desc"
+                        type: "application/vnd.oai.openapi+json;version=3.0"
+                        title: "OpenAPI service description"
+
+  /conformance:
+    get:
+      summary: Conformance declaration
+      description: Returns the list of conformance classes supported by this CCRP implementation
+      operationId: getConformance
+      responses:
+        '200':
+          description: Conformance classes
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - conformsTo
+                properties:
+                  conformsTo:
+                    type: array
+                    items:
+                      type: string
+                      format: uri
+                    example:
+                      - "https://ccrp.io/spec/v1/conformance/core"
+                      - "https://ccrp.io/spec/v1/conformance/range-requests"
+                      - "https://ccrp.io/spec/v1/conformance/multipart-responses"
+                      - "https://ccrp.io/spec/v1/conformance/advanced-queries"
+
+  /dataset:
+    get:
+      summary: List available datasets
+      description: Returns a paginated list of all datasets available through this CCRP service
+      operationId: listDatasets
       parameters:
-        - name: dataset_name
+        - name: limit
+          in: query
+          description: Maximum number of datasets to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+        - name: token
+          in: query
+          description: Pagination token from previous response
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of available datasets
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - datasets
+                  - links
+                properties:
+                  datasets:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - title
+                        - links
+                      properties:
+                        id:
+                          type: string
+                          example: "noaa-goes-17-L2"
+                        title:
+                          type: string
+                          example: "NOAA GOES-17 Level 2 Data"
+                        description:
+                          type: string
+                        format:
+                          type: string
+                          enum: [zarr, iceberg, delta, hive]
+                        links:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Link'
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+                    example:
+                      - href: "/dataset"
+                        rel: "self"
+                        type: "application/json"
+                      - href: "/dataset?token=eyJsYXN0X2lkIjoibm9hYS1nb2VzLTE3LUwyIn0&limit=100"
+                        rel: "next"
+                        type: "application/json"
+                  nextToken:
+                    type: string
+                    description: Token for retrieving the next page
+                    example: "eyJsYXN0X2lkIjoibm9hYS1nb2VzLTE3LUwyIn0"
+
+  /dataset/{dataset_id}:
+    get:
+      summary: Get dataset metadata
+      description: Returns detailed metadata for a specific dataset, including native format metadata
+      operationId: getDataset
+      parameters:
+        - name: dataset_id
           in: path
+          description: Dataset identifier
           required: true
           schema:
             type: string
-          example: my-goes-dataset
-        - name: transaction_id
-          in: query
-          schema:
-            type: string
-          description: "The version pin (e.g., icechunk transaction ID or Iceberg snapshot ID) to ensure reproducible reads. If omitted, the server uses the latest version."
-        - name: selection
-          in: query
-          schema:
-            $ref: '#/components/schemas/SelectionQuery'
-          style: form
-          explode: true
-          description: |
-            The query parameters for selecting data. This is a placeholder for the actual query parameters, which are documented in the component schema `SelectionQuery`.
       responses:
         '200':
-          description: The query plan is ready.
+          description: Dataset metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - title
+                  - format
+                  - latest_version
+                  - links
+                  - native_metadata
+                properties:
+                  id:
+                    type: string
+                    example: "noaa-goes-17-L2"
+                  title:
+                    type: string
+                    example: "NOAA GOES-17 Level 2 Data"
+                  description:
+                    type: string
+                  format:
+                    type: string
+                    enum: [zarr, iceberg, delta, hive]
+                    description: The metadata format type, indicating how to parse the native_metadata field
+                  latest_version:
+                    type: string
+                    nullable: true
+                    description: Latest version identifier if dataset supports versioning, null otherwise
+                    example: "commit-f4a2b1c8"
+                  native_metadata:
+                    type: object
+                    description: Complete native metadata (zarr .zmetadata, iceberg metadata.json, etc)
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+                    example:
+                      - href: "/dataset/noaa-goes-17-L2"
+                        rel: "self"
+                        type: "application/json"
+                      - href: "/dataset/noaa-goes-17-L2/data"
+                        rel: "https://ccrp.io/spec/v1/rel/data"
+                        type: "application/octet-stream"
+                        title: "Query and retrieve data"
+        '404':
+          description: Dataset not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /dataset/{dataset_id}/data:
+    head:
+      summary: Plan a data query
+      description: Returns query plan information including total size and ETag for subsequent range requests
+      operationId: planDataQuery
+      parameters:
+        - name: dataset_id
+          in: path
+          description: Dataset identifier
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: query
+          description: Specific version to query (uses latest if not specified)
+          required: false
+          schema:
+            type: string
+        - name: dimension_queries
+          in: query
+          description: Dimension-based query parameters
+          required: false
+          schema:
+            $ref: '#/components/schemas/DimensionQueries'
+          style: form
+          explode: true
+      responses:
+        '200':
+          description: Query plan created successfully
+          headers:
+            Content-Length:
+              description: Total size in bytes of the data that would be returned
+              schema:
+                type: integer
+              required: true
+            ETag:
+              description: Unique identifier for this query plan, required for subsequent GET requests
+              schema:
+                type: string
+              required: true
+            Accept-Ranges:
+              description: Indicates server supports byte range requests
+              schema:
+                type: string
+                const: bytes
+              required: true
+            CCRP-Resolved-Version:
+              description: The version used for this query (only present for datasets that support versioning)
+              schema:
+                type: string
+              required: false
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Dataset or version not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      summary: Retrieve data
+      description: |
+        Retrieves actual data bytes based on query parameters. Supports HTTP Range requests
+        for parallel downloads when used with If-Match header containing the ETag from a
+        prior HEAD request.
+
+        Response format can be controlled via Accept header:
+        - `application/octet-stream` (default): Concatenated raw bytes
+        - `multipart/mixed`: Each chunk as a separate part with Content-ID
+      operationId: getData
+      parameters:
+        - name: dataset_id
+          in: path
+          description: Dataset identifier
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: query
+          description: Specific version to query (uses latest if not specified)
+          required: false
+          schema:
+            type: string
+        - name: dimension_queries
+          in: query
+          description: Dimension-based query parameters
+          required: false
+          schema:
+            $ref: '#/components/schemas/DimensionQueries'
+          style: form
+          explode: true
+      responses:
+        '200':
+          description: Complete data returned
           headers:
             Content-Length:
               schema:
                 type: integer
-              description: The total size of the data to be downloaded in bytes.
             ETag:
               schema:
                 type: string
-              description: A unique identifier for the query plan.
             CCRP-Resolved-Version:
+              description: The version used for this query (only present for datasets that support versioning)
               schema:
                 type: string
-              description: The version ID that was used to resolve the query, returned when the client does not specify a `transaction_id`.
-    put:
-      operationId: fetchData
-      tags:
-        - Data Retrieval
-      summary: Fetch Data
-      description: |
-        Fetches the data planned by a `HEAD` request. The client can use the `Range` header to download a portion of the data. The `If-Match` header must contain the `ETag` from the `HEAD` request to ensure that the query plan has not changed.
-      parameters:
-        - name: dataset_name
-          in: path
-          required: true
-          schema:
-            type: string
-          example: my-goes-dataset
-        - name: Range
-          in: header
-          schema:
-            type: string
-          description: The byte range to fetch.
-        - name: If-Match
-          in: header
-          required: true
-          schema:
-            type: string
-          description: The `ETag` from the corresponding `HEAD` request.
-      responses:
-        '200':
-          description: The full data payload.
+              required: false
           content:
             application/octet-stream:
+              description: Concatenated raw bytes of all matching chunks
               schema:
                 type: string
                 format: binary
+            multipart/mixed:
+              description: |
+                Multipart response with each chunk as a separate part.
+                Each part includes Content-ID header with chunk identifier.
+              schema:
+                type: object
+              example: |
+                --boundary123
+                Content-ID: chunk-0-0-5-2
+                Content-Type: application/octet-stream
+                Content-Length: 32768
+
+                [binary chunk data]
+                --boundary123
+                Content-ID: chunk-0-0-5-3
+                Content-Type: application/octet-stream
+                Content-Length: 32768
+
+                [binary chunk data]
+                --boundary123--
         '206':
-          description: A partial data payload.
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
+          description: Partial content returned (Range request)
           headers:
             Content-Range:
               schema:
                 type: string
+                example: "bytes 0-1023/1048576"
             Content-Length:
               schema:
                 type: integer
+          content:
+            application/octet-stream:
+              description: Requested byte range of concatenated chunks
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Dataset or version not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '412':
+          description: Precondition failed (ETag mismatch or expired query plan)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Query plan has expired"
+                details: "Please initiate a new HEAD request"
+
 components:
   schemas:
-    SelectionQuery:
+    Error:
       type: object
-      description: |
-        The query parameters for selecting data. The actual parameter names are the queryable dimensions of the dataset, as advertised by the dataset's metadata endpoint. The values for these parameters must adhere to the CCRP Query Syntax Specification.
-        For detailed syntax, refer to the [CCRP Query Syntax Specification](/docs/ccrp-query-syntax).
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Brief error message
+          example: "Invalid query syntax"
+        details:
+          type: string
+          description: Detailed error information
+          example: "Unknown operator [foo] in dimension 'temperature[foo]'"
+        dimension:
+          type: string
+          description: Specific dimension that caused the error (if applicable)
+          example: "temperature"
+
+    Link:
+      type: object
+      required:
+        - href
+        - rel
+        - type
+      properties:
+        href:
+          type: string
+          description: URL of the linked resource
+          example: "/dataset/noaa-goes-17-L2"
+        rel:
+          type: string
+          description: Relationship type (IANA registered or CCRP-specific URI)
+          example: "self"
+        type:
+          type: string
+          description: Media type of the linked resource
+          example: "application/json"
+        method:
+          type: string
+          description: HTTP method to use (defaults to GET if not specified)
+          enum: [GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS]
+          default: GET
+          example: "POST"
+        title:
+          type: string
+          description: Human-readable title for the link
+          example: "Dataset metadata"
+        hreflang:
+          type: string
+          description: Language of the linked resource
+          example: "en"
+        body:
+          type: object
+          description: Body template or schema for requests (typically for POST/PUT)
+          example:
+            query: {
+              type: "object",
+              properties: {
+                time: { type: "string" }
+              }
+            }
+
+    DimensionQueries:
+      type: object
+      description: Dimension-based query parameters following CCRP syntax
       additionalProperties:
         type: string
+        pattern: '^([^:\[,]+|[^:,]+:[^:,]+|[^,]+(,[^,]+)*|[^,]+\[(gte|gt|lte|lt|nin)\])$'
+        description: |
+          Query values following CCRP syntax:
+          - Single value: "value"
+          - Range: "start:end" (half-open interval)
+          - Set: "v1,v2,v3"
+          - Operators: "value" with parameter name like "dim[gte]"
       example:
-        time: "2023-10-27T00:00:00Z:2023-10-27T01:00:00Z"
+        time: "2024-01-01:2024-02-01"
+        lat: "30:40"
         band: "C07,C08"
-        y: "1000:3000"
-        price[gte]: "20.00"
-        category[nin]: "internal,test"
-        status: "completed"
-        sensor_id[lt]: "12345"
+        "temperature[gte]": "20.0"
+        "status[nin]": "error,cancelled"
