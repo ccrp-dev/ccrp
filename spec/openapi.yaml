@@ -92,7 +92,6 @@ paths:
                     example:
                       - "https://ccrp.io/spec/v1/conformance/core"
                       - "https://ccrp.io/spec/v1/conformance/range-requests"
-                      - "https://ccrp.io/spec/v1/conformance/multipart-responses"
                       - "https://ccrp.io/spec/v1/conformance/advanced-queries"
 
   /dataset:
@@ -224,7 +223,7 @@ paths:
                         type: "application/json"
                       - href: "/dataset/noaa-goes-17-L2/data"
                         rel: "https://ccrp.io/spec/v1/rel/data"
-                        type: "application/octet-stream"
+                        type: "multipart/mixed"
                         title: "Query and retrieve data"
         '404':
           description: Dataset not found
@@ -304,9 +303,8 @@ paths:
         for parallel downloads when used with If-Match header containing the ETag from a
         prior HEAD request.
 
-        Response format can be controlled via Accept header:
-        - `application/octet-stream` (default): Concatenated raw bytes
-        - `multipart/mixed`: Each chunk as a separate part with Content-ID
+        Returns chunks as a multipart/mixed response where each chunk is a separate part
+        with Content-ID header for identification.
       operationId: getData
       parameters:
         - name: dataset_id
@@ -345,11 +343,6 @@ paths:
                 type: string
               required: false
           content:
-            application/octet-stream:
-              description: Concatenated raw bytes of all matching chunks
-              schema:
-                type: string
-                format: binary
             multipart/mixed:
               description: |
                 Multipart response with each chunk as a separate part.
@@ -381,11 +374,12 @@ paths:
               schema:
                 type: integer
           content:
-            application/octet-stream:
-              description: Requested byte range of concatenated chunks
+            multipart/mixed:
+              description: |
+                Requested byte range of the multipart response.
+                May include partial chunks at boundaries.
               schema:
-                type: string
-                format: binary
+                type: object
         '400':
           description: Invalid query parameters
           content:

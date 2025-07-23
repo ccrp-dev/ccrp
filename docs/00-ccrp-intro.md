@@ -27,9 +27,9 @@ performance.
 
 ## How CCRP Helps
 
-The Coalesced Chunk Retrieval Protocol (CCRP) provides a simple service that accepts chunk queries and returns the
-concatenated bytes. Instead of making N requests for N chunks, you make one
-request:
+The Coalesced Chunk Retrieval Protocol (CCRP) provides a simple service that
+accepts chunk queries and returns the requested chunks. Instead of making N
+requests for N chunks, you make one request:
 
 ```
 GET /dataset/my-data/data?time[gte]=2024-01&time[lt]=2024-02&variable=temperature
@@ -39,7 +39,7 @@ CCRP:
 
 1. Translates your query into the required chunks
 2. Fetches them in parallel from the object store
-3. Returns the concatenated bytes
+3. Returns them as a multipart response with clear boundaries
 
 That's it. No magic, no complex processing—just efficient request coalescing
 where it matters.

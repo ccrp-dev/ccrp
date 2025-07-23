@@ -28,20 +28,26 @@ Client                                   CCRP Service
 ```http
 GET /dataset/ocean-temp/data?time[gte]=2024-01-01&time[lt]=2024-01-08&lat=35&lon=-120&variable=sst HTTP/1.1
 Host: ccrp.example.com
-Accept: application/octet-stream
+Accept: multipart/mixed
 ```
 
 #### Response
 
 ```http
 HTTP/1.1 200 OK
-Content-Type: application/octet-stream
+Content-Type: multipart/mixed; boundary=chunk-boundary
 Content-Length: 524288
 ETag: "a4f2c9d7b3e8"
 CCRP-Resolved-Version: v20240115
 Cache-Control: private, max-age=3600
 
+--chunk-boundary
+Content-ID: chunk-0
+Content-Type: application/octet-stream
+Content-Length: 524288
+
 [binary chunk data]
+--chunk-boundary--
 ```
 
 ### When to Use
@@ -95,10 +101,15 @@ Range: bytes=0-10485759
 HTTP/1.1 206 Partial Content
 Content-Range: bytes 0-10485759/52428800
 Content-Length: 10485760
-Content-Type: application/octet-stream
+Content-Type: multipart/mixed; boundary=chunk-boundary
 ETag: "d4e9f3c8a2b7"
 
-[binary chunk data]
+--chunk-boundary
+Content-ID: chunk-0
+Content-Type: application/octet-stream
+
+[partial binary chunk data]
+--chunk-boundary--
 ```
 
 #### Request 2: Next 10MB
@@ -113,10 +124,15 @@ Range: bytes=10485760-20971519
 HTTP/1.1 206 Partial Content
 Content-Range: bytes 10485760-20971519/52428800
 Content-Length: 10485760
-Content-Type: application/octet-stream
+Content-Type: multipart/mixed; boundary=chunk-boundary
 ETag: "d4e9f3c8a2b7"
 
-[binary chunk data]
+--chunk-boundary
+Content-ID: chunk-1
+Content-Type: application/octet-stream
+
+[partial binary chunk data]
+--chunk-boundary--
 ```
 
 **Note:** The ETag identifies a specific query plan. For unversioned datasets,
@@ -176,7 +192,7 @@ Client                                   CCRP Service
 ```
 
 **Note:** The Content-Length returned by HEAD represents the total size of ALL
-chunks that match your query concatenated together, not individual chunk sizes.
+chunks that match your query, not individual chunk sizes.
 This is the total number of bytes you'll need to retrieve.
 
 ### Example: Large Spatial Query
@@ -209,9 +225,9 @@ If-Match: "c7d3e9f4a2b8"
 HTTP/1.1 206 Partial Content
 Content-Length: 1342177280
 Content-Range: bytes 0-1342177279/5368709120
-Content-Type: application/octet-stream
+Content-Type: multipart/mixed; boundary=chunk-boundary
 
-[binary chunk data]
+[multipart response with multiple chunks]
 ```
 
 ### When to Use
@@ -257,12 +273,17 @@ Host: ccrp.example.com
 
 ```http
 HTTP/1.1 200 OK
-Content-Type: application/octet-stream
+Content-Type: multipart/mixed; boundary=chunk-boundary
 Content-Length: 1048576
 CCRP-Resolved-Version: v20240115-1430
 ETag: "d9e4f3c8a2b7"
 
+--chunk-boundary
+Content-ID: chunk-0
+Content-Type: application/octet-stream
+
 [binary chunk data]
+--chunk-boundary--
 ```
 
 #### Request 2: Follow-up query with explicit version
@@ -274,12 +295,17 @@ Host: ccrp.example.com
 
 ```http
 HTTP/1.1 200 OK
-Content-Type: application/octet-stream
+Content-Type: multipart/mixed; boundary=chunk-boundary
 Content-Length: 1048576
 CCRP-Resolved-Version: v20240115-1430
 ETag: "e1f5a3d9b8c4"
 
+--chunk-boundary
+Content-ID: chunk-0
+Content-Type: application/octet-stream
+
 [binary chunk data]
+--chunk-boundary--
 ```
 
 ### When to Use
@@ -291,8 +317,8 @@ ETag: "e1f5a3d9b8c4"
 
 ## Multipart Response Flow
 
-For implementations supporting multipart responses, chunks can be retrieved
-with clear boundaries and identifiers.
+CCRP returns chunks with clear boundaries and identifiers using the multipart/mixed
+format.
 
 ### Flow Sequence
 
@@ -349,9 +375,6 @@ Content-Length: 1048576
 - Processing chunks separately as they arrive
 - Debugging or inspection of chunk boundaries
 - When chunk metadata is important
-
-**Note:** Requires the multipart-responses conformance class.
-
 ## Error Recovery Flow
 
 This flow demonstrates handling expired ETags and other recoverable errors.
@@ -548,7 +571,7 @@ Content-Type: application/json
     {
       "href": "/dataset/global-temperature/data",
       "rel": "https://ccrp.io/spec/v1/rel/data",
-      "type": "application/octet-stream"
+      "type": "multipart/mixed"
     }
   ],
   "native_metadata": {

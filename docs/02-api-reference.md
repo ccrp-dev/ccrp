@@ -33,7 +33,7 @@ structures change:
     {
       "href": "/dataset/temperature/data",
       "rel": "https://ccrp.io/spec/v1/rel/data",
-      "type": "application/octet-stream",
+      "type": "multipart/mixed",
       "title": "Query and retrieve data"
     }
   ]
@@ -109,8 +109,7 @@ Returns the list of conformance classes supported by this implementation.
 {
   "conformsTo": [
     "https://ccrp.io/spec/v1/conformance/core",
-    "https://ccrp.io/spec/v1/conformance/range-requests",
-    "https://ccrp.io/spec/v1/conformance/multipart-responses"
+    "https://ccrp.io/spec/v1/conformance/range-requests"
   ]
 }
 ```
@@ -210,7 +209,7 @@ Returns complete metadata for a dataset, including native format metadata.
     {
       "href": "/dataset/noaa-goes-17-L2/data",
       "rel": "https://ccrp.io/spec/v1/rel/data",
-      "type": "application/octet-stream",
+      "type": "multipart/mixed",
       "title": "Query and retrieve data"
     }
   ]
@@ -277,16 +276,11 @@ Retrieves actual data bytes for a query.
 
 - `Range` (optional): Byte range for partial requests
 - `If-Match` (optional): ETag for cache validation
-- `Accept` (optional): Preferred response format
-  - `application/octet-stream` (default): Concatenated bytes
-  - `multipart/mixed`: Separate parts with chunk identifiers (requires
-    multipart conformance)
 
-**Content Negotiation:**
+**Response Format:**
 
-- If Accept header requests unsupported format: Returns 406 Not Acceptable
-- Content negotiation is only available with multipart-responses conformance
-  class
+- All responses use `multipart/mixed` format
+- Each chunk is returned as a separate part with Content-ID header
 
 **Response:**
 
@@ -348,7 +342,7 @@ Required functionality:
 
 - All endpoints listed above
 - Basic query operators (equality, ranges, sets)
-- Simple concatenated response format
+- Multipart response format with chunk boundaries
 - Dataset versioning (if applicable)
 
 ### Standard Conformance Classes
@@ -368,15 +362,6 @@ Required functionality:
 - Support for If-Match headers
 - 412 Precondition Failed responses
 - Query plan caching and validation
-
-#### Multipart Responses
-
-**URI**: `https://ccrp.io/spec/v1/conformance/multipart-responses`
-
-- Support for `multipart/mixed` responses
-- Chunk identification via Content-ID
-- Content negotiation via Accept header
-- 406 Not Acceptable for unsupported formats
 
 ### Advanced Conformance Classes
 

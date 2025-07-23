@@ -47,7 +47,7 @@ Each dataset includes a link to its data endpoint:
     {
       "href": "/dataset/temperature-global/data",
       "rel": "https://ccrp.io/spec/v1/rel/data",
-      "type": "application/octet-stream"
+      "type": "multipart/mixed"
     }
   ]
 }

@@ -141,7 +141,7 @@ CCRP fundamentally changes this model. Two different queries might include
 overlapping chunks, but:
 
 - The URLs differ due to different query parameters
-- The byte offsets differ because chunks are concatenated in query-specific
+- The byte offsets differ because chunks are returned in query-specific
   orders
 - The same chunk might appear at different byte positions in different
   responses
@@ -169,7 +169,7 @@ Organizations requiring edge caching may need to:
 As CCRP matures, CDN providers might implement CCRP-aware caching that:
 
 - Parses CCRP queries to identify requested chunks
-- Caches individual chunks rather than concatenated responses
+- Caches individual chunks rather than complete multipart responses
 - Assembles responses from cached chunks when possible
 - Maintains chunk ordering for correct response generation
 
