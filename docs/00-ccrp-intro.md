@@ -106,6 +106,7 @@ local data.
 CCRP is under active development.
 
 The basic structure is in place, but it is likely that gaps and errors exist.
+The examples are not great, and need to be reworked with real values.
 Everything is up for discussion, nothing is set in stone. Please help make CCRP
 better by opening issues and/or PRs for any problems or improvments. Don't
 hesitate to start a discussion to ask a question. This is intended to be a
