@@ -28,7 +28,19 @@ performance.
 ## How CCRP Helps
 
 The Coalesced Chunk Retrieval Protocol (CCRP) provides a simple service that
-accepts chunk queries and returns the requested chunks. Instead of making N
+accepts chunk queries and returns the requested chunks. Think of this like GraphQL, but for chunked datasets in cloud storage.
+
+GraphQL originated from a version of the same problem with REST APIs. To get a
+user, their posts, and their comments, you have to make three separate API
+calls: `/users/1`, `/users/1/posts`, and `/users/1/comments`.
+
+GraphQL solved this by letting clients send one single query describing
+everything they need, and they get it all back in one round trip.
+
+CCRP does for data chunks what GraphQL did for web resources. It replaces
+thousands of slow, chatty requests with a single, efficient one. It offloads
+chunk byte range calculation from the client side, and allows for read
+coalescing where it would otherwise be impossible. Instead of making N
 requests for N chunks, you make one request:
 
 ```
@@ -63,8 +75,8 @@ CCRP is NOT:
 
 Currently, CCRP targets:
 
-- **Zarr** arrays (with or without icechunk versioning)
-- **Apache Iceberg** tables (containing Parquet files)
+- **Zarr** arrays (with or without Icechunk versioning)
+- **Parquet** tables (with or without Iceberg versioning)
 
 Other chunked formats could be supported by future implementations.
 
@@ -88,3 +100,16 @@ Additionally, CCRP enables new patterns:
 
 CCRP aims to make cloud-stored chunked data as easy and performant to access as
 local data.
+
+## Spec Status
+
+CCRP is under active development.
+
+The basic structure is in place, but it is likely that gaps and errors exist.
+Everything is up for discussion, nothing is set in stone. Please help make CCRP
+better by opening issues and/or PRs for any problems or improvments. Don't
+hesitate to start a discussion to ask a question. This is intended to be a
+community project, so please feel free to contribute.
+
+With enough interest we can get a true working group formed around this project
+to drive direction, refinement, and ecosystem implementation.
