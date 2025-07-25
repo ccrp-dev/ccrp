@@ -13,12 +13,12 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://jkeifer.github.io',
+  url: 'https://ccrp-dev.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/ccrp/',
 
-  organizationName: 'jkeifer',
+  organizationName: 'ccrp-dev',
   projectName: 'ccrp',
 
   onBrokenLinks: 'throw',
@@ -78,9 +78,9 @@ const config: Config = {
           position: 'left',
           label: 'Documentation',
         },
-        { to: '/api', label: 'API', position: 'left' },
+        { to: '/api', label: 'API Spec', position: 'left' },
         {
-          href: 'https://github.com/jkeifer/ccrp',
+          href: 'https://github.com/ccrp-dev/ccrp',
           label: 'GitHub',
           position: 'right',
         },
@@ -99,11 +99,20 @@ const config: Config = {
           ],
         },
         {
+          title: 'API',
+          items: [
+            {
+              label: 'API Spec',
+              to: '/api',
+            },
+          ],
+        },
+        {
           title: 'More',
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/jkeifer/ccrp',
+              href: 'https://github.com/ccrp-dev/ccrp',
             },
           ],
         },

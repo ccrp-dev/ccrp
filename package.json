@@ -19,8 +19,8 @@
     "test": "echo \"No tests specified for the root project.\" && exit 0"
   },
   "dependencies": {
-    "@docusaurus/core": "3.8.1",
-    "@docusaurus/preset-classic": "3.8.1",
+    "@docusaurus/core": "^3.8.1",
+    "@docusaurus/preset-classic": "^3.8.1",
     "@mdx-js/react": "^3.0.0",
     "clsx": "^2.0.0",
     "prism-react-renderer": "^2.3.0",
@@ -29,9 +29,9 @@
     "redocusaurus": "^2.5.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "3.8.1",
-    "@docusaurus/tsconfig": "3.8.1",
-    "@docusaurus/types": "3.8.1",
+    "@docusaurus/module-type-aliases": "^3.8.1",
+    "@docusaurus/tsconfig": "^3.8.1",
+    "@docusaurus/types": "^3.8.1",
     "@stoplight/spectral-cli": "^6.15.0",
     "@types/eslint-plugin-markdown": "^2.0.2",
     "@typescript-eslint/eslint-plugin": "^8.37.0",
@@ -43,7 +43,7 @@
     "eslint-plugin-react": "^7.37.5",
     "markdownlint-cli": "^0.45.0",
     "prettier": "^3.6.2",
-    "typescript": "~5.6.2"
+    "typescript": "^5.6.2"
   },
   "browserslist": {
     "production": [
@@ -62,5 +62,6 @@
   },
   "keywords": [],
   "author": "jkeifer0@gmail.com",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "repository": "https://github.com/ccrp-dev/ccrp"
 }
