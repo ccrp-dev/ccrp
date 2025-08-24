@@ -14,7 +14,7 @@ const config: Config = {
 
   // Set the production url of your site here
   url: 'https://ccrp.dev',
-  baseUrl: '',
+  baseUrl: '/',
 
   organizationName: 'ccrp-dev',
   projectName: 'ccrp',
