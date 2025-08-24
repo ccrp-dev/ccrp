@@ -13,10 +13,8 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://ccrp-dev.github.io',
-  // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/ccrp/',
+  url: 'https://ccrp.dev',
+  baseUrl: '',
 
   organizationName: 'ccrp-dev',
   projectName: 'ccrp',
