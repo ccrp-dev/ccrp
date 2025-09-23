@@ -92,14 +92,14 @@ abstraction is key to its flexibility.
 
 When you query:
 
-```
-GET /dataset/ocean-temp/data?time[gte]=2024-01&time[lt]=2024-02&depthi[gte]=0&depth[lt]=100
+```plaintext
+GET /dataset/ocean-temp/data?time[gte]=2024-01&time[lt]=2024-02&depth[gte]=0&depth[lt]=100
 ```
 
 You're using:
 
-- **Logical coordinates**: January 2024, depths 0-100m
-- Not **physical indices**: chunks [15,0,0] through [17,10,5]
+- **Logical coordinates**: Dimensional values like 0 to 100
+- Not **physical bytes**: `bytes=256564-544321`
 
 CCRP handles the translation.
 
@@ -124,13 +124,13 @@ provides mechanisms for reproducible access.
 
 For datasets with version control, queries can specify a version:
 
-```
+```plaintext
 GET /dataset/weather/data?time=2024-01&version=v20240315
 ```
 
 Or use the latest:
 
-```
+```plaintext
 GET /dataset/weather/data?time=2024-01
 ```
 
@@ -145,7 +145,7 @@ When no version is specified for a versioned dataset, CCRP:
 2. Returns the resolved version in a header
 3. Allows subsequent requests to use this version for consistency
 
-```
+```plaintext
 GET /dataset/weather/data?time=2024-01
 → CCRP-Resolved-Version: v20240320
 ```
@@ -184,7 +184,7 @@ two-phase protocol.
 
 For basic use cases, a single GET request suffices:
 
-```
+```plaintext
 GET /dataset/temperature/data?lat[gte]=30&lat[lt]=40&lon[gte]=-120&lon[lt]=-110
 → 200 OK [data bytes]
 ```
@@ -195,7 +195,7 @@ For large queries or parallel downloads:
 
 1. **HEAD request** returns the total size and an ETag:
 
-```
+```plaintext
 HEAD /dataset/temperature/data?lat[gte]=30&lat[lt]=40&lon[gte]=-120&lon[lt]=-110
 → Content-Length: 5368709120
 → ETag: "abc123"
@@ -203,7 +203,7 @@ HEAD /dataset/temperature/data?lat[gte]=30&lat[lt]=40&lon[gte]=-120&lon[lt]=-110
 
 1. **Multiple GET requests** with byte ranges:
 
-```
+```plaintext
 GET /dataset/temperature/data?lat[gte]=30&lat[lt]=40&lon[gte]=-120&lon[lt]=-110
 Range: bytes=0-1073741823
 If-Match: "abc123"
