@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+# Ensure only one deployment runs at a time
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build Docusaurus
